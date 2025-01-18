@@ -5,13 +5,13 @@ async function main() {
     // ADMIN
     await prisma.admin.create({
         data: {
-            email: "admin1",
+            email: "admin1@gmail.com",
             password: "admin1",
         },
     });
     await prisma.admin.create({
         data: {
-            email: "admin2",
+            email: "admin2@gmail.com",
             password: "admin2",
         },
     });
@@ -89,9 +89,11 @@ async function main() {
                 enrollmentNo: `${100 + i}`,
                 email: `student${i}@gmail.com`,
                 fatherName: `Fname${i}`,
+                motherName: `Mname${i}`,
                 address: `Address${i}`,
                 phone: `123456789${i % 2}`,
                 gender: i % 2 === 0 ? userGender.MALE : userGender.FEMALE,
+                dob: new Date(),
                 classId: (i % 6) + 1,
                 studentVerificationDetailId: i,
             },

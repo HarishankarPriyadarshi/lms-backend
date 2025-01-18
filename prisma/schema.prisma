@@ -35,7 +35,7 @@ model TeacherVerificationDetail {
 
 model Admin {
   id        Int       @unique @default(autoincrement())
-  email     String
+  email     String    @unique
   password  String
   resetOtp  String?
   otpExpiry DateTime?
@@ -68,7 +68,9 @@ model Student {
   phone                       String
   address                     String
   gender                      userGender
+  dob                         DateTime
   fatherName                  String
+  motherName                  String
   img                         String?
   createdAt                   DateTime                  @default(now())
   class                       Class                     @relation(fields: [classId], references: [id])

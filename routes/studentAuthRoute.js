@@ -2,6 +2,7 @@ import express from 'express';
 import {
     forgotController,
     loginController,
+    otpController,
     registerController,
     resetController,
     testController
@@ -18,7 +19,9 @@ router.post("/register", registerController);
 router.post('/login', loginController);
 //forgot password and resend otp
 router.post('/forgotPassword', forgotController)
-//resetpassword
+//otp verification
+router.post('/otpverify/:id', otpController)
+//old and new password
 router.put('/:id', resetController)
 
 //testing middleware
