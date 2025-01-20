@@ -85,7 +85,7 @@ model Class {
   id           Int            @id @default(autoincrement())
   className    String         @unique
   students     Student[]
-  events       Event[]
+  // events       Event[]
   notification Notification[]
   subjects     Subject[]
   // Teacher      Teacher?       @relation(fields: [teacherId], references: [id])
@@ -148,10 +148,11 @@ model Event {
   id          Int      @id @default(autoincrement())
   title       String
   description String
+  date        DateTime
   startTime   DateTime
   endTime     DateTime
-  classId     Int?
-  class       Class?   @relation(fields: [classId], references: [id])
+  // classId     Int?
+  // class       Class?   @relation(fields: [classId], references: [id])
 }
 
 model Notification {

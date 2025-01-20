@@ -54,7 +54,6 @@ export const registerController = async (req, res) => {
         });
     }
 };
-
 //login controller
 export const loginController = async (req, res) => {
     try {
@@ -178,8 +177,7 @@ export const forgotController = async (req, res) => {
             error: error.message,
         });
     }
-};
-
+}
 //otp verification otpController
 export const otpController = async (req, res) => {
     try {
@@ -286,7 +284,6 @@ export const resetController = async (req, res) => {
         });
     }
 };
-
 //for test controller
 export const testController = async (req, res) => {
     try {
@@ -296,3 +293,65 @@ export const testController = async (req, res) => {
 
     }
 }
+//profile controller
+export const profileController = async (req, res) => {
+    try {
+        const student = await prisma.student.findUnique({
+            where: { id: req.user.id }, ///id comes from after populating user in auth middleware
+            include: {
+                class: {
+                    select: {
+                        className: true,
+                    },
+                },
+            },
+        });
+
+        if (!student) {
+            return res.status(404).json({
+                sucess: false,
+                message: 'Student not found'
+            });
+        }
+
+        // Extracting only the required fields
+        const {
+            firstName,
+            middleName,
+            lastName,
+            enrollmentNo,
+            email,
+            phone,
+            address,
+            gender,
+            dob,
+            fatherName,
+            motherName,
+            class: { className },
+        } = student;
+
+        console.log(student);
+        res.status(200).json({
+            sucess: true,
+            firstName,
+            middleName,
+            lastName,
+            enrollmentNo,
+            email,
+            phone,
+            address,
+            gender,
+            dob,
+            fatherName,
+            motherName,
+            className,
+        });
+
+    } catch (error) {
+        console.error("error occured during getting profile", error)
+        res.status(500).json({
+            success: false,
+            message: "error occured during profile getting"
+        })
+    }
+}  

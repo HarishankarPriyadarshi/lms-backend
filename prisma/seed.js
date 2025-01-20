@@ -152,9 +152,10 @@ async function main() {
             data: {
                 title: `Event ${i}`,
                 description: `Description for Event ${i}`,
+                date: new Date(),
                 startTime: new Date(new Date().setHours(new Date().getHours() + 1)),
                 endTime: new Date(new Date().setHours(new Date().getHours() + 2)),
-                classId: (i % 5) + 1,
+                // classId: (i % 5) + 1,
             },
         });
     }
