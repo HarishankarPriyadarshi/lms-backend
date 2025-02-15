@@ -26,15 +26,17 @@ export const eventController = async (req, res) => {
         })
     }
 }
-//testing failed
+//testing success and lookover date formate stored
 export const eventControllerByDate = async (req, res) => {
     try {
-        const { givendate } = req.params;
-        console.log(givendate);
-
+        const { date } = req.params;
+        console.log('date', date);
+        console.log('date', new Date(date));
         const events = await prisma.event.findMany({
             where: {
-                date: new Date(givendate)
+                date: date
+                //date:new Date(date)
+
             },
             orderBy: {
                 date: 'asc',

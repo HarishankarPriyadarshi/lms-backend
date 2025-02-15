@@ -181,9 +181,9 @@ export const forgotController = async (req, res) => {
 //otp verification otpController
 export const otpController = async (req, res) => {
     try {
-        const { otp } = req.body;
-        const userId = req.params.id
-        console.log(userId);
+        const { email, otp } = req.body;
+        // const userId = req.params.id
+        // console.log(userId);
         // Validation
         if (!otp) {
             return res.status(400).json({
@@ -193,7 +193,8 @@ export const otpController = async (req, res) => {
         }
         const existingUser = await prisma.StudentVerificationDetail.findFirst({
             where: {
-                id: Number(userId)
+                // id: Number(userId)
+                email,
             }
         })
 
@@ -214,7 +215,10 @@ export const otpController = async (req, res) => {
             });
         }
         await prisma.StudentVerificationDetail.update({
-            where: { id: Number(userId) },
+            where: {
+                // id: Number(userId)
+                email,
+            },
             data: {
                 resetOtp: null,
                 otpExpiry: null,
@@ -234,9 +238,9 @@ export const otpController = async (req, res) => {
 };
 export const resetController = async (req, res) => {
     try {
-        const { newPassword, confirmPassword } = req.body;
-        const userId = req.params.id
-        console.log(userId);
+        const { email, newPassword, confirmPassword } = req.body;
+        // const userId = req.params.id
+        // console.log(userId);
         // Validation
         if (!newPassword || !confirmPassword) {
             return res.status(400).json({
@@ -254,7 +258,8 @@ export const resetController = async (req, res) => {
 
         const existingUser = await prisma.StudentVerificationDetail.findFirst({
             where: {
-                id: Number(userId)
+                // id: Number(userId)
+                email,
             }
         })
 
@@ -267,7 +272,7 @@ export const resetController = async (req, res) => {
         // Hash the new password
         const hashedPassword = await hashPassword(newPassword);
         await prisma.StudentVerificationDetail.update({
-            where: { id: Number(userId) },
+            where: { email },
             data: {
                 password: hashedPassword,
             },
@@ -354,4 +359,68 @@ export const profileController = async (req, res) => {
             message: "error occured during profile getting"
         })
     }
-}  
+}
+
+// attendance controller
+export const attendanceController = async (req, res) => {
+    try {
+        // Logic
+        /* 
+        1. get  id, year, month
+        2. validate id, year,month
+        3. find attendance count on the basis of id, year, month
+        4. find total presen
+        5. then findabsent= total-present
+        */
+        const { id } = req.user.id;
+        // const id = 2;
+        const { year, month } = req.params;
+        // console.log(id, year, month)
+        if (!id || !year || !month) {
+            return res.status(400).json({
+                success: false,
+                message: "year or month is misssing"
+            })
+        }
+        const startOfMonth = new Date(year, month - 1, 1);
+        const endOfMonth = new Date(year, month, 0);
+        startOfMonth.toISOString()
+        endOfMonth.toISOString()
+        const totalAttendance = await prisma.attendance.count({
+            where: {
+                studentId: id,
+                date: {
+                    gte: startOfMonth,
+                    lte: endOfMonth
+                }
+            }
+        })
+        const totalPresent = await prisma.attendance.count({
+            where: {
+                studentId: id,
+                date: {
+                    gte: startOfMonth,
+                    lte: endOfMonth
+                },
+                present: true
+            }
+        })
+        const totalAbsent = totalAttendance - totalPresent
+        const data = { year, month, totalAttendance, totalPresent, totalAbsent }
+        return res.status(200).json({
+            success: true,
+            data,
+            message: "attendance sent succuessfully"
+        })
+
+
+    } catch (error) {
+        console.error("something went wrong in attendance retriving", error);
+        res.json({
+            success: false,
+            status: 500,
+            message: 'error ocured during attendance retriving'
+        })
+
+    }
+}

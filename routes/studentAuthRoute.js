@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+    attendanceController,
     forgotController,
     loginController,
     otpController,
@@ -20,14 +21,17 @@ router.post('/login', loginController);
 //forgot password and resend otp
 router.post('/forgotPassword', forgotController)
 //otp verification
-router.post('/otpverify/:id', otpController)
+// router.post('/otpverify/:id', otpController)
+router.post('/otpverify', otpController)
 //old and new password
-router.put('/:id', resetController)
+router.put('/resetPassword', resetController)
 //profile
 router.get('/profile', requireSignIn, profileController)
 //get event
 router.get('/event', eventController)
 router.get('/event/:date', eventControllerByDate)
+//attendance
+router.get('/attendance/:year/:month', requireSignIn, attendanceController);
 
 
 
