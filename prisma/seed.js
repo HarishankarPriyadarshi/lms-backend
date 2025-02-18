@@ -66,6 +66,7 @@ async function main() {
                 subjects: { connect: [{ id: (i % 10) + 1 }] },
                 classes: { connect: [{ id: (i % 6) + 1 }] },
                 teacherVerificationDetailId: i,
+                role: "teacher"
             },
         });
     }
@@ -147,18 +148,44 @@ async function main() {
     }
 
     // EVENT
-    for (let i = 1; i <= 5; i++) {
-        await prisma.event.create({
-            data: {
-                title: `Event ${i}`,
-                description: `Description for Event ${i}`,
-                date: new Date(),
-                startTime: new Date(new Date().setHours(new Date().getHours() + 1)),
-                endTime: new Date(new Date().setHours(new Date().getHours() + 2)),
-                // classId: (i % 5) + 1,
-            },
-        });
-    }
+    // for (let i = 1; i <= 5; i++) {
+    //     const now = new Date();
+    //     await prisma.event.create({
+    //         data: {
+    //             title: `Event ${i}`,
+    //             description: `Description for Event ${i}`,
+    //             date: new Date(),
+    //             // startTime: new Date(new Date().setHours(new Date().getHours() + 1)),
+    //             // endTime: new Date(new Date().setHours(new Date().getHours() + 2)),
+
+    //             //reseted db and datatype chnaged to string for date and time
+    //             startTime: new Date(new Date().setHours(new Date().getHours() + 1))
+    //                 .toISOString()
+    //                 .split("T")[1]
+    //                 .split(".")[0],
+    //             endTime: new Date(new Date().setHours(new Date().getHours() + 2))
+    //                 .toISOString()
+    //                 .split("T")[1]
+    //                 .split(".")[0],
+
+    //             // classId: (i % 5) + 1,
+    //         },
+    //     });
+    // }
+    // for (let i = 1; i <= 5; i++) {
+    //     const now = new Date();
+
+    //     await prisma.event.create({
+    //         data: {
+    //             title: `Event ${i}`,
+    //             description: `Description for Event ${i}`,
+    //             date: new Date(now.setHours(0, 0, 0, 0)), // Only date, removes time
+    //             startTime: new Date(now.setHours(9, 0, 0, 0)), // Set start time (09:00:00)
+    //             endTime: new Date(now.setHours(11, 0, 0, 0)), // Set end time (11:00:00)
+    //         },
+    //     });
+    // }
+
 
     // Notification
     for (let i = 1; i <= 5; i++) {

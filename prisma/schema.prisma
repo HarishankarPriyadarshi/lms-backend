@@ -56,6 +56,7 @@ model Teacher {
   classes                     Class[]
   teacherVerificationDetail   TeacherVerificationDetail @relation(fields: [teacherVerificationDetailId], references: [id])
   teacherVerificationDetailId Int                       @unique
+  role                        String
 }
 
 model Student {
@@ -91,6 +92,7 @@ model Class {
   // Teacher      Teacher?       @relation(fields: [teacherId], references: [id])
   // teacherId    Int?
   Teacher      Teacher[]
+  Event        Event[]
 }
 
 model Subject {
@@ -148,12 +150,21 @@ model Event {
   id          Int      @id @default(autoincrement())
   title       String
   description String
-  date        DateTime
-  startTime   DateTime
-  endTime     DateTime
-  // classId     Int?
-  // class       Class?   @relation(fields: [classId], references: [id])
+  date        DateTime @db.Date
+  startTime   DateTime @db.Time
+  endTime     DateTime @db.Time
+  classId     Int?
+  class       Class?   @relation(fields: [classId], references: [id])
 }
+
+// model Event {
+//   id          Int    @id @default(autoincrement())
+//   title       String
+//   description String
+//   date        String
+//   startTime   String
+//   endTime     String
+// }
 
 model Notification {
   id          Int      @id @default(autoincrement())

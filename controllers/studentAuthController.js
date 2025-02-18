@@ -372,14 +372,15 @@ export const attendanceController = async (req, res) => {
         4. find total presen
         5. then findabsent= total-present
         */
-        const { id } = req.user.id;
+        const { id } = req.user;
+        console.log("id", req.user)
         // const id = 2;
         const { year, month } = req.params;
-        // console.log(id, year, month)
+        console.log(id, year, month)
         if (!id || !year || !month) {
             return res.status(400).json({
                 success: false,
-                message: "year or month is misssing"
+                message: "id, year or month is misssing"
             })
         }
         const startOfMonth = new Date(year, month - 1, 1);

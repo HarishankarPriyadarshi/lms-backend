@@ -4,13 +4,17 @@ import {
     loginController,
     otpController,
     resetController,
+    profileController,
+    createEventController,
 } from "../controllers/teacherAuthController.js";
-
+import { requireSignIn, isTeacher } from '../middlewares/authMiddleware.js'
 const router = express.Router();
-//login, forgotPassword and old and new  password
-router.post('/login', loginController)
+
+router.post('/login', loginController);
 router.post('/forgotPassword', forgotController)
-router.post('/otpverify/:id', otpController)
-router.put('/:id', resetController)
+router.post('/otpverify', otpController)
+router.put('/resetPassword', resetController)
+router.get('/profile', requireSignIn, profileController)
+router.post('/createEvent', requireSignIn, isTeacher, createEventController)
 
 export default router;

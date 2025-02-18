@@ -10,7 +10,7 @@ import {
     testController
 } from '../controllers/studentAuthController.js';
 import { requireSignIn } from '../middlewares/authMiddleware.js'
-import { eventController, eventControllerByDate } from '../controllers/eventController.js';
+import { getEventsController } from '../controllers/eventController.js';
 const router = express.Router();
 
 //register
@@ -28,8 +28,10 @@ router.put('/resetPassword', resetController)
 //profile
 router.get('/profile', requireSignIn, profileController)
 //get event
-router.get('/event', eventController)
-router.get('/event/:date', eventControllerByDate)
+router.get('/event', requireSignIn, getEventsController)
+
+
+
 //attendance
 router.get('/attendance/:year/:month', requireSignIn, attendanceController);
 

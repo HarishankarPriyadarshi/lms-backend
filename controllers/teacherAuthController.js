@@ -18,14 +18,18 @@ export const loginController = async (req, res) => {
                 email
             }
         })
+        console.log(user)
         if (!user) {
             return res.status(404).json({
                 success: false,
                 message: "email is not registered"
             })
         }
+        const teacher = await prisma.teacher.findUnique({
+            where: { email },
+        });
         //token generation
-        const token = JWT.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '120 days' })
+        const token = JWT.sign({ id: user.id, role: teacher.role }, process.env.JWT_SECRET, { expiresIn: '120 days' })
         if (user.password === password) {
             console.log(user.password, password);
             return res.status(200).json({
@@ -66,55 +70,62 @@ export const loginController = async (req, res) => {
 export const forgotController = async (req, res) => {
     try {
         const { email } = req.body;
+
+        // Validation
         if (!email) {
-            return res.status(401).json({
+            return res.status(400).send({
                 success: false,
-                message: "invalid emaiId"
-            })
+                message: 'Invalid email id',
+            });
         }
-        const user = await prisma.TeacherVerificationDetail.findUnique({
-            where: {
-                email
-            }
-        })
-        console.log("user", user)
-        if (!user) {
-            return res.status(404).json({
+
+        const existingUser = await prisma.TeacherVerificationDetail.findUnique({
+            where: { email },
+        });
+
+        if (!existingUser) {
+            return res.status(404).send({
                 success: false,
-                message: "email is not registered"
-            })
+                message: 'User not found',
+            });
         }
-        const otp = Math.floor(1000 + Math.random() * 1000)
+
+        const otp = Math.floor(1000 + Math.random() * 9000);
+        // const otpExpiry = new Date(Date.now() + 30 * 60 * 1000); // 10 minutes from now
+        console.log('Current Time:', new Date());
         const OTPExpiry = new Date(Date.now() + 30 * 60 * 1000);
+        console.log('Setting OTP Expiry Time:', OTPExpiry);
+
         await prisma.TeacherVerificationDetail.update({
             where: { email },
             data: {
-                otpExpiry: OTPExpiry,
                 resetOtp: otp.toString(),
+                otpExpiry: OTPExpiry,
             },
-        })
-        await sendOtpNotification(email, otp);
-        console.log("email sent to", email);
-        res.status(200).json({
-            success: true,
-            message: "mail sent sucessfully",
+        });
 
+        await sendOtpNotification(email, otp);
+        console.log("sendOtpNotification called");
+
+        res.status(200).send({
+            success: "true",
+            message: "otp send succesfully",
         })
+        console.log("otp send succesfully")
     } catch (error) {
-        console.log("something went wrong during forget password", error)
-        res.status(500).json({
+        console.error(error);
+        res.status(500).send({
             success: false,
-            message: "Error in forget password",
-            error
-        })
+            message: "Error in forgot password",
+            error: error.message,
+        });
     }
 }
-//otp verification otpController
 export const otpController = async (req, res) => {
     try {
-        const { otp } = req.body;
-        const userId = req.params.id
-        console.log(userId);
+        const { email, otp } = req.body;
+        // const userId = req.params.id
+        // console.log(userId);
         // Validation
         if (!otp) {
             return res.status(400).json({
@@ -124,7 +135,8 @@ export const otpController = async (req, res) => {
         }
         const existingUser = await prisma.TeacherVerificationDetail.findFirst({
             where: {
-                id: Number(userId)
+                // id: Number(userId)
+                email,
             }
         })
 
@@ -145,7 +157,10 @@ export const otpController = async (req, res) => {
             });
         }
         await prisma.TeacherVerificationDetail.update({
-            where: { id: Number(userId) },
+            where: {
+                // id: Number(userId)
+                email,
+            },
             data: {
                 resetOtp: null,
                 otpExpiry: null,
@@ -165,9 +180,9 @@ export const otpController = async (req, res) => {
 };
 export const resetController = async (req, res) => {
     try {
-        const { newPassword, confirmPassword } = req.body;
-        const userId = req.params.id
-        console.log(userId);
+        const { email, newPassword, confirmPassword } = req.body;
+        // const userId = req.params.id
+        // console.log(userId);
         // Validation
         if (!newPassword || !confirmPassword) {
             return res.status(400).json({
@@ -185,7 +200,8 @@ export const resetController = async (req, res) => {
 
         const existingUser = await prisma.TeacherVerificationDetail.findFirst({
             where: {
-                id: Number(userId)
+                // id: Number(userId)
+                email,
             }
         })
 
@@ -198,7 +214,7 @@ export const resetController = async (req, res) => {
         // Hash the new password
         const hashedPassword = await hashPassword(newPassword);
         await prisma.TeacherVerificationDetail.update({
-            where: { id: Number(userId) },
+            where: { email },
             data: {
                 password: hashedPassword,
             },
@@ -215,3 +231,100 @@ export const resetController = async (req, res) => {
         });
     }
 };
+export const profileController = async (req, res) => {
+    try {
+        const teacher = await prisma.teacher.findUnique({
+            where: { id: req.user.id }, ///id comes from after populating user in auth middleware
+            include: {
+                classes: {
+                    select: {
+                        className: true,
+                    },
+                },
+                subjects: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
+        });
+
+        if (!teacher) {
+            return res.status(404).json({
+                sucess: false,
+                message: 'teacher not found'
+            });
+        }
+
+        // Extracting only the required fields
+        const {
+            firstName,
+            middleName,
+            lastName,
+            email,
+            phone,
+            address,
+            gender,
+            classes: { className },
+            subjects: { name }
+        } = teacher;
+
+        console.log(teacher);
+        res.status(200).json({
+            sucess: true,
+            data: teacher
+            // firstName,
+            // middleName,
+            // lastName,
+            // email,
+            // phone,
+            // address,
+            // gender,
+            // classes: { className },
+            // subjects: { name }
+        });
+
+    } catch (error) {
+        console.error("error occured during getting profile", error)
+        res.status(500).json({
+            success: false,
+            message: "error occured during profile getting"
+        })
+    }
+}
+export const createEventController = async (req, res) => {
+    try {
+        const { title, description, date, startTime, endTime, classId } = req.body;
+
+        // Ensuring correct time format
+        const formattedDate = new Date(date);
+        const startDateTime = new Date(`${date}T${startTime}`);
+        const endDateTime = new Date(`${date}T${endTime}`);
+
+        const eventdata = await prisma.event.create({
+            data: {
+                title,
+                description,
+                date: formattedDate,
+                startTime: startDateTime,
+                endTime: endDateTime,
+                classId: Number(classId)
+            }
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Event created successfully",
+            eventdata
+        });
+
+    } catch (error) {
+        console.error("Error while creating event:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error occurred in event creation",
+            error: error.message
+        });
+    }
+};
+
