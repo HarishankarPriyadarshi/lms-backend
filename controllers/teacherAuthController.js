@@ -327,4 +327,59 @@ export const createEventController = async (req, res) => {
         });
     }
 };
+export const createAssignmentController = async (req, res) => {
+
+    try {
+        const { title, startDate, dueDate, subjectId, classId } = req.body;
+        const userRole = req.user.role; // Extract user role from authentication middleware
+        const teacherId = req.user.id; // Extract logged-in teacher ID
+        console.log(userRole, teacherId);
+
+
+        if (userRole !== 'teacher') {
+            return res.status(403).json({ error: 'Only teachers can create assignments' });
+        }
+
+        // Check if teacher is assigned to this subject and class
+        const subject = await prisma.subject.findUnique({
+            where: { id: subjectId },
+            include: {
+                teachers: { where: { id: teacherId } }, // Check if teacher is assigned to this subject
+                classes: { where: { id: classId } }, // Check if class is linked to this subject
+            },
+        });
+        console.log(subject)
+
+        if (!subject || subject.teachers.length === 0) {
+            return res.status(403).json({ error: 'You are not assigned to this subject' });
+        }
+
+        if (subject.classes.length === 0) {
+            return res.status(400).json({ error: 'This subject is not assigned to the specified class' });
+        }
+
+        // Create the assignment
+        const assignment = await prisma.assignment.create({
+            data: {
+                title,
+                startDate: new Date(startDate),
+                dueDate: new Date(dueDate),
+                subjectId,
+                classId,
+            },
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'Assignment created successfully',
+            assignment,
+        });
+    } catch (error) {
+        console.error('Error while creating assignment:', error);
+        res.status(500).json({ error: 'Error occurred in assignment creation' });
+    }
+};
+
+
+
 

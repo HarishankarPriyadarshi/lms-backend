@@ -93,6 +93,7 @@ model Class {
   // teacherId    Int?
   Teacher      Teacher[]
   Event        Event[]
+  Assignments  Assignment[]
 }
 
 model Subject {
@@ -124,6 +125,8 @@ model Assignment {
   dueDate   DateTime
   subjectId Int
   subject   Subject  @relation(fields: [subjectId], references: [id])
+  classId   Int
+  class     Class    @relation(fields: [classId], references: [id])
   results   Result[]
 }
 

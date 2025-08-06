@@ -40,9 +40,18 @@ async function main() {
         { name: "Computer Science" },
         { name: "Hindi" },
     ];
+    const allowedClassIds = [1, 2, 3, 4, 5];
+
 
     for (const subject of subjectData) {
-        await prisma.subject.create({ data: subject });
+        await prisma.subject.create({
+            data: {
+                name: subject.name,
+                classes: {
+                    connect: allowedClassIds.map(id => ({ id }))
+                }
+            }
+        });
     }
     // TEACHER VERIFICATION DETAILS
     for (let i = 1; i <= 15; i++) {
@@ -114,27 +123,27 @@ async function main() {
     }
 
     // ASSIGNMENT
-    for (let i = 1; i <= 10; i++) {
-        await prisma.assignment.create({
-            data: {
-                title: `Assignment ${i}`,
-                startDate: new Date(new Date().setHours(new Date().getHours() + 1)),
-                dueDate: new Date(new Date().setDate(new Date().getDate() + 1)),
-                subjectId: (i % 30),
-            },
-        });
-    }
+    // for (let i = 1; i <= 10; i++) {
+    //     await prisma.assignment.create({
+    //         data: {
+    //             title: `Assignment ${i}`,
+    //             startDate: new Date(new Date().setHours(new Date().getHours() + 1)),
+    //             dueDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+    //             subjectId: (i % 30),
+    //         },
+    //     });
+    // }
 
     // RESULT
-    for (let i = 1; i <= 10; i++) {
-        await prisma.result.create({
-            data: {
-                score: 90,
-                studentId: Number(`${i}`),
-                ...(i <= 5 ? { examId: i } : { assignmentId: i - 5 }),
-            },
-        });
-    }
+    // for (let i = 1; i <= 10; i++) {
+    //     await prisma.result.create({
+    //         data: {
+    //             score: 90,
+    //             studentId: Number(`${i}`),
+    //             ...(i <= 5 ? { examId: i } : { assignmentId: i - 5 }),
+    //         },
+    //     });
+    // }
 
     // ATTENDANCE
     for (let i = 1; i <= 10; i++) {

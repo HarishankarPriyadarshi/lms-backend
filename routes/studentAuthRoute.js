@@ -11,6 +11,7 @@ import {
 } from '../controllers/studentAuthController.js';
 import { requireSignIn } from '../middlewares/authMiddleware.js'
 import { getEventsController } from '../controllers/eventController.js';
+import { getAssignmentsController } from "../controllers/assignmentController.js"
 const router = express.Router();
 
 //register
@@ -29,6 +30,8 @@ router.put('/resetPassword', resetController)
 router.get('/profile', requireSignIn, profileController)
 //get event
 router.get('/event', requireSignIn, getEventsController)
+//get aassignment
+router.get('/assignment', requireSignIn, getAssignmentsController)
 
 
 

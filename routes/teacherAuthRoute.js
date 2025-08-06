@@ -6,6 +6,7 @@ import {
     resetController,
     profileController,
     createEventController,
+    createAssignmentController,
 } from "../controllers/teacherAuthController.js";
 import { requireSignIn, isTeacher } from '../middlewares/authMiddleware.js'
 const router = express.Router();
@@ -16,5 +17,6 @@ router.post('/otpverify', otpController)
 router.put('/resetPassword', resetController)
 router.get('/profile', requireSignIn, profileController)
 router.post('/createEvent', requireSignIn, isTeacher, createEventController)
+router.post('/createAssignment', requireSignIn, isTeacher, createAssignmentController)
 
 export default router;

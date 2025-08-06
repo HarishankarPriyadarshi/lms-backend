@@ -133,7 +133,6 @@ export const getEventsController = async (req, res) => {
         //         lt: new Date(new Date(startdate).setDate(new Date(startdate).getDate() + 1)), // Fetch only events for that specific date
         //     };
         // }
-
         // Students can only see events for their class
         if (userRole === "student") {
             filter.classId = studentClassId;
